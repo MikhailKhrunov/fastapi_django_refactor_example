@@ -1,8 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
-from src.schemas.achievements import AchievementBase
 from typing import Literal, List, Optional
 
-MyColors = Literal["Grey", "Black", "White", "Ginger", "Mixed"]
+MyColors = Literal["Gray", "Black", "White", "Ginger", "Mixed"]
 
 class BaseCat(BaseModel):
     name: str = Field(..., min_length=1, max_legnth=16)
@@ -13,8 +12,10 @@ class CatCreate(BaseCat):
     owner_id: int
     achievements: Optional[List[str]] = Field(default_factory=list)
 
-class CatUpdate(BaseCat):
+class CatUpdate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=16)
     color: Optional[MyColors] = None
+    birth_year: Optional[int] = Field(None, ge=1900, le=2100)
     achievements: Optional[List[str]] = None
 
 class CatResponse(BaseCat):
