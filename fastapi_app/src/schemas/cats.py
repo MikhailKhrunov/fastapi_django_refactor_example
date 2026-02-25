@@ -13,11 +13,7 @@ class CatCreate(BaseCat):
     achievements: Optional[List[str]] = Field(default_factory=list)
 
 class CatUpdate(BaseModel):
-<<<<<<< HEAD
-    name: str = Field(..., min_length=1, max_length=16)
-=======
     name: Optional[str] = Field(None, min_length=1, max_length=16)
->>>>>>> 4d5effb8c1f7e89e3f7792b18aafa73f256e8139
     color: Optional[MyColors] = None
     birth_year: Optional[int] = Field(None, ge=1900, le=2100)
     achievements: Optional[List[str]] = None
