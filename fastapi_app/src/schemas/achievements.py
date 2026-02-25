@@ -8,5 +8,6 @@ class AchievementCreate(BaseAchievement):
     pass
 
 class AchievementResponse(BaseAchievement):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     id: int
+    achievement_name: str = Field(..., alias='name')
