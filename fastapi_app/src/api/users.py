@@ -1,62 +1,59 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import List
-from src.schemas.users import UserCreate, UserUpdate, UserResponse
+from schemas.users import UserCreate, UserUpdate, UserResponse
 
 router = APIRouter()
 
-users_db: dict[int, UserResponse] = {}
-_next_user_id = 1
+_users_db: List[UserResponse] = []
+_next_user_id: int = 1
 
-@router.get("/", response_model=List[UserResponse])
-async def get_all_users():
-    return list(users_db.values())
+@router.get("/users", response_model=List[UserResponse])
+async def get_users(): # получаем всех
+    return _users_db
 
-@router.get("{user_id}", response_model=UserResponse)
-async def get_user(user_id: int):
-    if user_id not in users_db:
+@router.get("/users/{user_id}", response_model=UserResponse)
+async def get_user(user_id: int): # получение по ID
+    user = next((u for u in _users_db if u.id == user_id), None)
+    if not user:
         raise HTTPException(status_code=404, detail="User не найден")
-    return users_db[user_id]
+    return user
 
-@router.post("/", response_model=UserResponse, status_code=201)
-async def create_user(user: UserCreate):
+@router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def create_user(user: UserCreate): # создание нового
     global _next_user_id
-
-    for user in users_db.values():
-        if user.username == user_data.username:
-            raise HTTPException(status_code=400, detail="User уже существует")
-
-    new_user = UserResponse(    
+    if any(u.username == user.username for u in _users_db):
+        raise HTTPException(
+            status_code=400, 
+            detail="User с таким именем уже существует"
+        )
+    new_user = UserResponse(
         id=_next_user_id,
-        username=user_data.username,
-        first_name=user_data.first_name or "",
-        last_name=user_data.last_name or ""
+        username=user.username,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        cats=[]
     )
-    users_db[_next_user_id] = new_user
+    _users_db.append(new_user)
     _next_user_id += 1
     return new_user
 
-@router.put("/{user_id}", response_model=UserResponse)
-async def update_user(user_id: int, user: UserUpdate):
-    if user_id not in users_db:
+@router.put("/users/{user_id}", response_model=UserResponse)
+async def update_user(user_id: int, user: UserUpdate): # обновление
+    db_user = next((u for u in _users_db if u.id == user_id), None)
+    if not db_user:
         raise HTTPException(status_code=404, detail="User не найден")
+    update_data = user.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        if value is not None:
+            setattr(db_user, field, value)
+    return db_user
 
-    user = users_db[user_id]
-    if user_data.username is not None:
-        for u in users_db.values():
-            if u.username == user.username and u.id != user_id:
-                raise HTTPException(status_code=400, detail="User уже существует")
-        user.username = user_data.username
-    if user_data.first_name is not None:
-        user.first_name = user_data.first_name
-    if user_data.last_name is not None:
-        user.last_name = user_data.last_name
-
-    users_db[user_id] = user
-    return user
-
-@router.delete("/{user_id}", status_code=204)
-async def delete_user(user_id: int):
-    if user_id not in users_db:
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user_id: int): # удаление
+    global _users_db
+    user = next((u for u in _users_db if u.id == user_id), None)
+    if not user:
         raise HTTPException(status_code=404, detail="User не найден")
-    del users_db[user_id]
+    
+    _users_db = [u for u in _users_db if u.id != user_id]
     return None
