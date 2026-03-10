@@ -6,6 +6,7 @@ from src.database import Base
 
 class Cat(Base):
     """Одна модель со всеми полями в одной таблице"""
+
     __tablename__ = "cats"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -30,4 +31,5 @@ class Cat(Base):
     def set_achievements_list(self, achievements: list[str]):
         """Установить достижения из списка"""
         import json
+
         self.achievements = json.dumps(achievements, ensure_ascii=False)

@@ -10,13 +10,12 @@ class Database:
     def __init__(self):
         base_dir = Path(__file__).parent.parent
         db_path = base_dir / "kittygram.db"
-        
+
         self._db_url = f"sqlite:///{db_path}"
         self._engine = create_engine(
-            self._db_url,
-            connect_args={"check_same_thread": False}
+            self._db_url, connect_args={"check_same_thread": False}
         )
-        
+
         @event.listens_for(self._engine, "connect")
         def set_sqlite_pragma(dbapi_conn, connection_record):
             cursor = dbapi_conn.cursor()

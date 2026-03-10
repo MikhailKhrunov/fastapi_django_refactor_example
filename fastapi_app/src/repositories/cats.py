@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from src.models.cat import Cat as CatModel
+from src.models.cat_model import Cat as CatModel
 from src.schemas.cats import CatCreate, CatUpdate, CatResponse
 
 
@@ -27,23 +27,24 @@ class CatRepository:
     def create(self, cat: CatCreate) -> CatModel:
         """Принимает Pydantic, возвращает SQLAlchemy"""
         from datetime import datetime
+
         age = datetime.now().year - cat.birth_year
-        
+
         db_cat = CatModel(
             name=cat.name,
             color=cat.color,
             birth_year=cat.birth_year,
             owner_id=cat.owner_id,
-            owner_username=f"user_{cat.owner_id}",  # Упрощённо
+            owner_username=f"user_{cat.owner_id}",
             owner_first_name=None,
             owner_last_name=None,
-            age=age
+            age=age,
         )
-        
+
         # Конвертируем достижения в JSON
         if cat.achievements:
             db_cat.set_achievements_list(cat.achievements)
-        
+
         self.session.add(db_cat)
         return db_cat
 
@@ -54,18 +55,19 @@ class CatRepository:
             return None
 
         update_data = cat.model_dump(exclude_unset=True)
-        
+
         for field, value in update_data.items():
             if value is not None:
-                if field == 'achievements':
+                if field == "achievements":
                     db_cat.set_achievements_list(value)
-                elif field == 'birth_year':
+                elif field == "birth_year":
                     from datetime import datetime
+
                     db_cat.age = datetime.now().year - value
                     setattr(db_cat, field, value)
                 else:
                     setattr(db_cat, field, value)
-        
+
         return db_cat
 
     def delete(self, cat_id: int) -> bool:
