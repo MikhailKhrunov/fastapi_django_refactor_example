@@ -1,9 +1,9 @@
 from typing import List, Optional
 
-from src.database import database
-from src.repositories import CatRepository
-from src.schemas.cats import CatCreate, CatUpdate, CatResponse
-from src.models.cat_model import Cat as CatModel
+from database import database
+from repositories.cats import CatRepository
+from schemas.cats import CatCreate, CatUpdate, CatResponse
+from models.cat_model import Cat as CatModel
 
 
 class CatUseCase:

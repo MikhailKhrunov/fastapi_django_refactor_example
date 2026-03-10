@@ -8,12 +8,12 @@ _users_db: List[UserResponse] = []
 _next_user_id: int = 1
 
 
-@router.get("/users", response_model=List[UserResponse])
+@router.get("/", response_model=List[UserResponse])
 async def get_users():  # получаем всех
     return _users_db
 
 
-@router.get("/users/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int):  # получение по ID
     user = next((u for u in _users_db if u.id == user_id), None)
     if not user:
@@ -21,7 +21,11 @@ async def get_user(user_id: int):  # получение по ID
     return user
 
 
-@router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED
+)
 async def create_user(user: UserCreate):  # создание нового
     global _next_user_id
     if any(u.username == user.username for u in _users_db):
@@ -40,7 +44,7 @@ async def create_user(user: UserCreate):  # создание нового
     return new_user
 
 
-@router.put("/users/{user_id}", response_model=UserResponse)
+@router.put("/{user_id}", response_model=UserResponse)
 async def update_user(user_id: int, user: UserUpdate):  # обновление
     db_user = next((u for u in _users_db if u.id == user_id), None)
     if not db_user:
@@ -52,7 +56,7 @@ async def update_user(user_id: int, user: UserUpdate):  # обновление
     return db_user
 
 
-@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(user_id: int):  # удаление
     global _users_db
     user = next((u for u in _users_db if u.id == user_id), None)

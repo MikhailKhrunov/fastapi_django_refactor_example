@@ -7,7 +7,12 @@ app = create_app()
 
 
 async def run() -> None:
-    config = uvicorn.Config("main:app", host="127.0.0.1", port=8000, reload=True)
+    config = uvicorn.Config(
+        "main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True
+    )
     server = uvicorn.Server(config=config)
     tasks = (asyncio.create_task(server.serve()),)
 

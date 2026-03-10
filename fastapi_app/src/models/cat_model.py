@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 import json
 
-from src.database import Base
+from database import Base
 
 
 class Cat(Base):

@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from src.models.cat_model import Cat as CatModel
-from src.schemas.cats import CatCreate, CatUpdate, CatResponse
+from models.cat_model import Cat as CatModel
+from schemas.cats import CatCreate, CatUpdate
 
 
 class CatRepository:
@@ -19,10 +19,14 @@ class CatRepository:
         return self.session.query(CatModel).offset(skip).limit(limit).all()
 
     def get_by_id(self, cat_id: int) -> Optional[CatModel]:
-        return self.session.query(CatModel).filter(CatModel.id == cat_id).first()
+        return self.session.query(CatModel).filter(
+            CatModel.id == cat_id
+        ).first()
 
     def get_by_owner(self, owner_id: int) -> List[CatModel]:
-        return self.session.query(CatModel).filter(CatModel.owner_id == owner_id).all()
+        return self.session.query(CatModel).filter(
+            CatModel.owner_id == owner_id
+        ).all()
 
     def create(self, cat: CatCreate) -> CatModel:
         """Принимает Pydantic, возвращает SQLAlchemy"""
@@ -46,6 +50,7 @@ class CatRepository:
             db_cat.set_achievements_list(cat.achievements)
 
         self.session.add(db_cat)
+        self.session.flush()
         return db_cat
 
     def update(self, cat_id: int, cat: CatUpdate) -> Optional[CatModel]:
