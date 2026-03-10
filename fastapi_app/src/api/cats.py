@@ -81,7 +81,7 @@ async def update_cat(cat_id: int, cat: CatUpdate): # обновление кот
     return db_cat
 
 @router.delete("/cats/{cat_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_cat(cat_id: int): # удаление котика(
+async def delete_cat(cat_id: int): # удаление котика
     global _cats_db
     cat = next((c for c in _cats_db if c.id == cat_id), None)
     if not cat:

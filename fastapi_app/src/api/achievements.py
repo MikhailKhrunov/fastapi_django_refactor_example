@@ -19,7 +19,7 @@ async def get_achievement(achievement_id: int): # получение по айд
     return achievement
 
 @router.post("/achievements", response_model=AchievementResponse, status_code=status.HTTP_201_CREATED)
-async def create_achievement(achievement: AchievementCreate): # создание 
+async def create_achievement(achievement: AchievementCreate): # создание
     global _next_achievement_id
     existing = next((a for a in _achievements_db if a.name == achievement.name), None)
     if existing:
