@@ -205,3 +205,23 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# db and other
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.sqlite-journal
+alembic/__pycache__/
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+fastapi_app/kittygram.db
