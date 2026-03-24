@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from domain.user.usecases.cat import CatUseCase
+from usecases.cat import CatUseCase
 from schemas.cats import CatCreate, CatUpdate, CatResponse
 
 router = APIRouter()
