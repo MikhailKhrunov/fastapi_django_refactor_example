@@ -15,10 +15,7 @@ async def get_achievements():  # получение
 
 @router.get("/{achievement_id}", response_model=AchievementResponse)
 async def get_achievement(achievement_id: int):  # получение по айди
-    achievement = next(
-        (a for a in _achievements_db if a.id == achievement_id),
-        None
-    )
+    achievement = next((a for a in _achievements_db if a.id == achievement_id), None)
     if not achievement:
         raise HTTPException(status_code=404, detail="Достижение не найдено")
     return achievement
@@ -31,10 +28,7 @@ async def get_achievement(achievement_id: int):  # получение по ай�
 )
 async def create_achievement(achievement: AchievementCreate):  # создание
     global _next_achievement_id
-    existing = next(
-        (a for a in _achievements_db if a.name == achievement.name),
-        None
-    )
+    existing = next((a for a in _achievements_db if a.name == achievement.name), None)
     if existing:
         return existing
     new_achievement = AchievementResponse(
@@ -48,15 +42,9 @@ async def create_achievement(achievement: AchievementCreate):  # создани�
 
 
 @router.put("/{achievement_id}", response_model=AchievementResponse)
-async def update_achievement(
-    achievement_id: int,
-    achievement: AchievementCreate
-):
+async def update_achievement(achievement_id: int, achievement: AchievementCreate):
     # обновление
-    db_achievement = next(
-        (a for a in _achievements_db if a.id == achievement_id),
-        None
-    )
+    db_achievement = next((a for a in _achievements_db if a.id == achievement_id), None)
     if not db_achievement:
         raise HTTPException(status_code=404, detail="Достижение не найдено")
     if achievement.name != db_achievement.name:
@@ -70,24 +58,17 @@ async def update_achievement(
         )
         if exists:
             raise HTTPException(
-                status_code=400,
-                detail="Достижение с таким названием уже существует"
+                status_code=400, detail="Достижение с таким названием уже существует"
             )
         db_achievement.name = achievement.name
         db_achievement.achievement_name = achievement.name
     return db_achievement
 
 
-@router.delete(
-    "/achievements/{achievement_id}",
-    status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/achievements/{achievement_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_achievement(achievement_id: int):  # удаление
     global _achievements_db
-    achievement = next(
-        (a for a in _achievements_db if a.id == achievement_id),
-        None
-    )
+    achievement = next((a for a in _achievements_db if a.id == achievement_id), None)
     if not achievement:
         raise HTTPException(status_code=404, detail="Достижение не найдено")
     _achievements_db = [a for a in _achievements_db if a.id != achievement_id]

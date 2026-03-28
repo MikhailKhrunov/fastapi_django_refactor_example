@@ -21,11 +21,7 @@ async def get_user(user_id: int):  # получение по ID
     return user
 
 
-@router.post(
-    "/",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate):  # создание нового
     global _next_user_id
     if any(u.username == user.username for u in _users_db):
