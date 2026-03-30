@@ -1,5 +1,5 @@
-from fastapi import APIRouter, status
-
+from fastapi import APIRouter, Depends, status
+from core.dependencies import get_current_user
 from domain.user.usecases.cat import CatUseCase
 from schemas.cats import CatCreate, CatUpdate, CatResponse
 # импорты через (), из-за flake8
@@ -19,7 +19,11 @@ usecase = CatUseCase()
 
 
 @router.get("/", response_model=list[CatResponse])
-async def get_cats(skip: int = 0, limit: int = 100):
+async def get_cats(
+    skip: int = 0,
+    limit: int = 100,
+    current_user: dict = Depends(get_current_user)
+):
     try:
         return usecase.get_all(skip=skip, limit=limit)
     except DomainError as e:
@@ -30,7 +34,7 @@ async def get_cats(skip: int = 0, limit: int = 100):
 
 
 @router.get("/{cat_id}", response_model=CatResponse)
-async def get_cat(cat_id: int):
+async def get_cat(cat_id: int, current_user: dict = Depends(get_current_user)):
     try:
         cat = usecase.get_by_id(cat_id)
         if not cat:
@@ -53,8 +57,12 @@ async def get_cat(cat_id: int):
     response_model=CatResponse,
     status_code=status.HTTP_201_CREATED
 )
-async def create_cat(cat: CatCreate):
+async def create_cat(
+    cat: CatCreate,
+    current_user: dict = Depends(get_current_user)
+):
     try:
+        cat.owner_id = current_user["user_id"]
         return usecase.create(cat)
     except OwnerNotFoundError as e:
         raise NotFoundException(e.message, {"code": e.error_code, **e.details})
@@ -71,7 +79,11 @@ async def create_cat(cat: CatCreate):
 
 
 @router.put("/{cat_id}", response_model=CatResponse)
-async def update_cat(cat_id: int, cat: CatUpdate):
+async def update_cat(
+    cat_id: int,
+    cat: CatUpdate,
+    current_user: dict = Depends(get_current_user)
+):
     try:
         updated = usecase.update(cat_id, cat)
         if not updated:
@@ -90,7 +102,10 @@ async def update_cat(cat_id: int, cat: CatUpdate):
 
 
 @router.delete("/{cat_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_cat(cat_id: int):
+async def delete_cat(
+    cat_id: int,
+    current_user: dict = Depends(get_current_user)
+):
     try:
         if not usecase.delete(cat_id):
             raise NotFoundException(

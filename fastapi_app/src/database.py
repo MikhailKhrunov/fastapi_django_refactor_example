@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 class Database:
     def __init__(self):
-        base_dir = Path(__file__).parent.parent
+        base_dir = Path(__file__).parent
         db_path = base_dir / "kittygram.db"
 
         self._db_url = f"sqlite:///{db_path}"
