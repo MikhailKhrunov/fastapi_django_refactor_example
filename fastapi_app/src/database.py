@@ -1,31 +1,40 @@
 from contextlib import contextmanager
-from pathlib import Path
-
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, event
 from sqlalchemy.ext.declarative import declarative_base
 
+from core.config import settings
+
+
+engine = create_engine(
+    settings.DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+)
+
+
+@event.listens_for(engine, "connect")
+def set_sqlite_pragma(dbapi_conn, connection_record):
+    cursor = dbapi_conn.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
+
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 class Database:
-    def __init__(self):
-        base_dir = Path(__file__).parent
-        db_path = base_dir / "kittygram.db"
-
-        self._db_url = f"sqlite:///{db_path}"
-        self._engine = create_engine(
-            self._db_url, connect_args={"check_same_thread": False}
-        )
-
-        @event.listens_for(self._engine, "connect")
-        def set_sqlite_pragma(dbapi_conn, connection_record):
-            cursor = dbapi_conn.cursor()
-            cursor.execute("PRAGMA foreign_keys=ON")
-            cursor.close()
-
     @contextmanager
     def session(self):
-        Session = sessionmaker(bind=self._engine)
-        session = Session()
+        session = SessionLocal()
         try:
             yield session
             session.commit()
@@ -37,4 +46,3 @@ class Database:
 
 
 database = Database()
-Base = declarative_base()

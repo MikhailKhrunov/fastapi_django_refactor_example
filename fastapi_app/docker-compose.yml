@@ -1,0 +1,14 @@
+services:
+  app:
+    image: kittygram:latest
+    container_name: kittygram_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - kittygram_data:/app/src
+    restart: unless-stopped
+
+volumes:
+  kittygram_data:

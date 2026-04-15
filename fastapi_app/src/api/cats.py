@@ -13,12 +13,28 @@ from core.exceptions.domain_exceptions import (
     OwnerNotFoundError,
     DomainError,
 )
+from schemas.errors import ErrorResponse, ValidationErrorResponse
 
 router = APIRouter()
 usecase = CatUseCase()
 
 
-@router.get("/", response_model=list[CatResponse])
+@router.get(
+        "/",
+        response_model=list[CatResponse],
+        responses={
+            200: {
+                "model": list[CatResponse],
+            },
+            401: {
+                "model": ErrorResponse,
+            },
+            404: {"model": ErrorResponse},
+            500: {
+                "model": ErrorResponse,
+            },
+        }
+    )
 async def get_cats(
     skip: int = 0,
     limit: int = 100,
@@ -33,7 +49,20 @@ async def get_cats(
         )
 
 
-@router.get("/{cat_id}", response_model=CatResponse)
+@router.get(
+    "/{cat_id}",
+    response_model=CatResponse,
+    responses={
+        200: {"model": CatResponse},
+        401: {
+            "model": ErrorResponse,
+        },
+        404: {"model": ErrorResponse},
+        500: {
+            "model": ErrorResponse,
+        },
+    }
+)
 async def get_cat(cat_id: int, current_user: dict = Depends(get_current_user)):
     try:
         cat = usecase.get_by_id(cat_id)
@@ -55,7 +84,23 @@ async def get_cat(cat_id: int, current_user: dict = Depends(get_current_user)):
 @router.post(
     "/",
     response_model=CatResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        201: {"model": CatResponse},
+        400: {
+            "model": ErrorResponse,
+        },
+        401: {
+            "model": ErrorResponse,
+        },
+        404: {"model": ErrorResponse},
+        422: {
+            "model": ValidationErrorResponse,
+        },
+        500: {
+            "model": ErrorResponse,
+        },
+    }
 )
 async def create_cat(
     cat: CatCreate,
@@ -78,7 +123,23 @@ async def create_cat(
         )
 
 
-@router.put("/{cat_id}", response_model=CatResponse)
+@router.put(
+    "/{cat_id}",
+    response_model=CatResponse,
+    responses={
+        200: {"model": CatResponse},
+        401: {
+            "model": ErrorResponse,
+        },
+        404: {"model": ErrorResponse},
+        422: {
+            "model": ValidationErrorResponse,
+        },
+        500: {
+            "model": ErrorResponse,
+        },
+    }
+)
 async def update_cat(
     cat_id: int,
     cat: CatUpdate,
@@ -101,7 +162,20 @@ async def update_cat(
         )
 
 
-@router.delete("/{cat_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{cat_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        204: {"description": "No Content"},
+        401: {
+            "model": ErrorResponse,
+        },
+        404: {"model": ErrorResponse},
+        500: {
+            "model": ErrorResponse,
+        },
+    }
+)
 async def delete_cat(
     cat_id: int,
     current_user: dict = Depends(get_current_user)
