@@ -15,9 +15,6 @@ def run_migrations():
     """Запустить миграции Alembic при старте"""
     from alembic.config import Config
     from alembic import command
-    # TODO: привести в нормальный вид, сделать схемы(готово), через build
-    # проверить образы докера(вроде работает, если правильно понял)
-    # и написать Makefile(спросить)
     alembic_cfg = Config(Path("./alembic.ini"))
     print(alembic_cfg.__str__)
     logger.info(msg=alembic_cfg)
